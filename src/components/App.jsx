@@ -1,13 +1,15 @@
 import {Phonebook} from './Phonebook';
 import {nanoid} from 'nanoid';
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
 import {Filter} from './Filter';
 import {Contacts} from './Contacts';
 export const App = () => {
   const [contacts, setContacts] = useState ([]);
   const [filter, setFilter] = useState ('');
+  const[isTrue,setIsTrue]=useState(false)
 
   const toggle = (name, tel) => {
+    setIsTrue(true);
     let masName = [];
     contacts.forEach (date => {
       return masName.push (date.name);
@@ -24,15 +26,40 @@ export const App = () => {
       },
     ]);
   };
-
+  const localStorageName = 'localName';
+  const saveLocalStorage = (key, value) => {
+    try {
+      const serializedState = JSON.stringify (value);
+      localStorage.setItem (key, serializedState);
+    } catch (error) {
+      console.error ('Set state error: ', error.message);
+    }
+  };
   const changeFilter = value => {
     setFilter (value);
+   
   };
   const deleteContact = id => {
+    setIsTrue(true)
     let objDel = contacts.filter (el => el.id !== id);
     setContacts (objDel);
   };
+  useEffect (
 
+    () => {
+      if(!isTrue){
+        return
+      }
+      saveLocalStorage (localStorageName, contacts);
+    },
+    [contacts,isTrue]
+  );
+  useEffect(()=>{
+    const saveLocalStorage = localStorage.getItem(localStorageName)
+
+    setContacts(saveLocalStorage?JSON.parse(saveLocalStorage):[])
+  },[])
+console.log(isTrue)
   return (
     <div>
 
